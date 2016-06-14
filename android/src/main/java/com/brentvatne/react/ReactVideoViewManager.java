@@ -1,5 +1,6 @@
 package com.brentvatne.react;
 
+import android.app.Activity;
 import com.brentvatne.react.ReactVideoView.Events;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReadableMap;
@@ -32,6 +33,12 @@ public class ReactVideoViewManager extends SimpleViewManager<ReactVideoView> {
     public static final String PROP_RATE = "rate";
     public static final String PROP_PLAY_IN_BACKGROUND = "playInBackground";
 
+    private final Activity mActivity;
+
+    public ReactVideoViewManager(Activity activity) {
+        mActivity = activity;
+    }
+
     @Override
     public String getName() {
         return REACT_CLASS;
@@ -39,7 +46,7 @@ public class ReactVideoViewManager extends SimpleViewManager<ReactVideoView> {
 
     @Override
     protected ReactVideoView createViewInstance(ThemedReactContext themedReactContext) {
-        return new ReactVideoView(themedReactContext);
+        return new ReactVideoView(themedReactContext, mActivity);
     }
 
     @Override

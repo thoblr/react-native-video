@@ -56,7 +56,7 @@ import com.brentvatne.react.ReactVideoPackage;
 
 Under `.addPackage(new MainReactPackage())`:
 ```java
-.addPackage(new ReactVideoPackage())
+.addPackage(new ReactVideoPackage(this))
 ```
 
 ## Usage

@@ -1,9 +1,11 @@
 package com.brentvatne.react;
 
+import android.app.Activity;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.util.Log;
 import android.net.Uri;
+import android.view.WindowManager;
 import android.webkit.CookieManager;
 import java.util.Map;
 import java.util.HashMap;
@@ -59,6 +61,7 @@ public class ReactVideoView extends ScalableVideoView implements MediaPlayer.OnP
     public static final String EVENT_PROP_EXTRA = "extra";
 
     private ThemedReactContext mThemedReactContext;
+    private final Activity mActivity;
     private RCTEventEmitter mEventEmitter;
 
     private Handler mProgressUpdateHandler = new Handler();
@@ -80,9 +83,9 @@ public class ReactVideoView extends ScalableVideoView implements MediaPlayer.OnP
     private int mVideoDuration = 0;
     private int mVideoBufferedDuration = 0;
 
-    public ReactVideoView(ThemedReactContext themedReactContext) {
+    public ReactVideoView(ThemedReactContext themedReactContext, final Activity activity) {
         super(themedReactContext);
-
+        mActivity = activity;
         mThemedReactContext = themedReactContext;
         mEventEmitter = themedReactContext.getJSModule(RCTEventEmitter.class);
         themedReactContext.addLifecycleEventListener(this);
@@ -197,6 +200,16 @@ public class ReactVideoView extends ScalableVideoView implements MediaPlayer.OnP
         }
     }
 
+    public void keepScreenOn(final boolean keepScreenOn) {
+        if (mActivity == null) return;
+
+        if (keepScreenOn) {
+            mActivity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        } else {
+            mActivity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+    }
+
     public void setPausedModifier(final boolean paused) {
         mPaused = paused;
 
@@ -206,10 +219,12 @@ public class ReactVideoView extends ScalableVideoView implements MediaPlayer.OnP
 
         if (mPaused) {
             if (mMediaPlayer.isPlaying()) {
+                keepScreenOn(false);
                 pause();
             }
         } else {
             if (!mMediaPlayer.isPlaying()) {
+                keepScreenOn(true);
                 start();
             }
         }
@@ -324,6 +339,7 @@ public class ReactVideoView extends ScalableVideoView implements MediaPlayer.OnP
     protected void onDetachedFromWindow() {
         mMediaPlayerValid = false;
         super.onDetachedFromWindow();
+        keepScreenOn(false);
     }
 
     @Override
@@ -339,7 +355,7 @@ public class ReactVideoView extends ScalableVideoView implements MediaPlayer.OnP
         }
     }
 
-    @Override 
+    @Override
     public void onHostResume() {
     }
 
